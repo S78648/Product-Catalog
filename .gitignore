@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+.env
+.env.*
+!.env.example
+*.local
+vite-dev.out
+vite-dev.err
+server/build
+server/.gradle
