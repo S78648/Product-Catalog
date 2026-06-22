@@ -7,8 +7,11 @@ import { useCart } from '@/hooks/useCart';
 export function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const { data: product, isLoading, isError } = useProduct(productId);
-  const [quantity, setQuantity] = useState(1);
-  const { addItem, updateQuantity, removeItem } = useCart();
+  const cartItems = useCart((state) => state.items);
+  const updateQuantity = useCart((state) => state.updateQuantity);
+  const removeItem = useCart((state) => state.removeItem);
+  const existingItem = cartItems.find((i) => i.productId === Number(productId));
+  const [quantity, setQuantity] = useState(existingItem?.quantity ?? 1);
 
   const handleDecrease = () => {
     if (quantity > 1) {
@@ -24,24 +27,24 @@ export function ProductDetailPage() {
     if (product && quantity < product.stock) {
       const newQuantity = quantity + 1;
       setQuantity(newQuantity);
-      addItem(product.id, 1);
+      updateQuantity(product.id, newQuantity);
     }
   };
 
   if (!productId) {
     return (
       <section>
-        <h1 className="text-3xl font-semibold tracking-normal">
+        <h1 className="text-2xl font-semibold text-gray-900">
           Product not found
         </h1>
-        <p className="mt-3 text-gray-600">No product was selected.</p>
+        <p className="mt-2 text-sm text-gray-500">No product was selected.</p>
       </section>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-600">
+      <div className="card p-10 text-center text-sm text-gray-500">
         Loading product details...
       </div>
     );
@@ -49,116 +52,152 @@ export function ProductDetailPage() {
 
   if (isError || !product) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center text-red-700">
+      <div className="rounded-xl border border-red-100 bg-red-50 p-10 text-center text-sm text-red-600">
         Unable to load product details. Please try again later.
       </div>
     );
   }
 
   return (
-    <section aria-labelledby="product-detail-heading">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1
-            id="product-detail-heading"
-            className="text-3xl font-semibold tracking-normal"
+          <Link
+            to="/products"
+            className="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-600"
           >
+            <svg
+              className="size-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to products
+          </Link>
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
             {product.name}
           </h1>
-          <p className="mt-3 max-w-2xl text-gray-600">
-            Detailed information for the selected product.
-          </p>
+          <p className="mt-1.5 text-sm text-gray-500">{product.description}</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="inline-flex items-center rounded-full border border-gray-200 bg-white shadow-sm">
+        <div className="flex flex-shrink-0 items-center gap-3">
+          <div className="inline-flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2">
             <button
               type="button"
               onClick={handleDecrease}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-100"
+              className="flex size-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
               aria-label="Decrease quantity"
             >
-              <span className="block h-0.5 w-4 rounded-full bg-gray-700" />
+              <svg
+                className="size-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 12H4"
+                />
+              </svg>
             </button>
 
-            <div className="min-w-[3rem] px-3 text-center text-sm font-semibold text-gray-950">
+            <span className="min-w-[2.5rem] text-center text-sm font-semibold text-gray-900 tabular-nums">
               {quantity}
-            </div>
+            </span>
 
             <button
               type="button"
               onClick={handleIncrease}
               disabled={quantity >= product.stock}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:bg-gray-800 bg-gray-950 disabled:opacity-50"
+              className="flex size-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-30"
               aria-label="Increase quantity"
             >
-              <span className="relative inline-flex h-5 w-5 items-center justify-center">
-                <span className="block h-0.5 w-3 rounded-full bg-white" />
-                <span className="absolute block h-3.5 w-0.5 origin-center rounded-full bg-white" />
-              </span>
+              <svg
+                className="size-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
             </button>
           </div>
-
-          <Link
-            to="/products"
-            className="inline-flex items-center rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-          >
-            Back to products
-          </Link>
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[360px_minmax(0,1fr)]">
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-          <img
-            src={product.thumbnailUrl}
-            alt={product.name}
-            className="h-full w-full object-cover"
-          />
+      <div className="grid gap-8 lg:grid-cols-[400px_minmax(0,1fr)]">
+        <div className="card overflow-hidden">
+          <div className="aspect-[4/3] overflow-hidden bg-gray-50">
+            <img
+              src={product.thumbnailUrl}
+              alt={product.name}
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-950">Overview</h2>
-            <p className="mt-4 text-gray-600">{product.description}</p>
+        <div className="space-y-5">
+          <div className="card p-6">
+            <h2 className="text-sm font-semibold text-gray-900">Overview</h2>
+            <p className="mt-3 text-sm leading-relaxed text-gray-500">
+              {product.description}
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <div className="card p-5">
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
                 Price
-              </h3>
-              <p className="mt-3 text-2xl font-semibold text-gray-950">
-                {new Intl.NumberFormat('en-US', {
+              </p>
+              <p className="mt-2 text-xl font-semibold text-gray-900">
+                {new Intl.NumberFormat('en-IN', {
                   style: 'currency',
-                  currency: 'USD',
+                  currency: 'INR',
                 }).format(product.price)}
               </p>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <div className="card p-5">
+              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
                 Stock
-              </h3>
-              <p className="mt-3 text-2xl font-semibold text-gray-950">
+              </p>
+              <p className="mt-2 text-xl font-semibold text-gray-900">
                 {product.stock}
               </p>
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-              Meta
-            </h3>
-            <dl className="mt-4 grid grid-cols-1 gap-3 text-sm text-gray-600 sm:grid-cols-2">
-              <div>
-                <dt className="font-medium text-gray-900">Product ID</dt>
-                <dd className="mt-1">{product.id}</dd>
+          <div className="card p-5">
+            <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+              Details
+            </p>
+            <dl className="mt-3 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-gray-400">Product ID</dt>
+                <dd className="font-medium text-gray-900">{product.id}</dd>
               </div>
-              <div>
-                <dt className="font-medium text-gray-900">Created At</dt>
-                <dd className="mt-1">
-                  {new Date(product.createdAt).toLocaleDateString()}
+              <div className="flex justify-between">
+                <dt className="text-gray-400">Created</dt>
+                <dd className="font-medium text-gray-900">
+                  {new Date(product.createdAt).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
                 </dd>
               </div>
             </dl>

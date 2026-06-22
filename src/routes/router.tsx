@@ -5,6 +5,8 @@ import { ContactPage } from '@/pages/ContactPage';
 import { HomePage } from '@/pages/HomePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ProductsPage } from '@/pages/ProductsPage';
+import { OrderPage } from '@/pages/OrderPage';
+import { ProductCreatePage } from '@/features/products/pages/ProductCreatePage';
 import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage';
 
 export const router = createBrowserRouter([
@@ -22,8 +24,16 @@ export const router = createBrowserRouter([
         element: <ProductsPage />,
       },
       {
+        path: 'products/create',
+        element: <ProductCreatePage />,
+      },
+      {
         path: 'products/:productId',
         element: <ProductDetailPage />,
+      },
+      {
+        path: 'order',
+        element: <OrderPage />,
       },
       {
         path: 'contact',
