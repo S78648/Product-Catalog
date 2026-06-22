@@ -5,12 +5,19 @@ import { RouterProvider } from 'react-router-dom';
 
 import { queryClient } from '@/app/queryClient';
 import { router } from '@/routes/router';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastContainer } from '@/components/ToastContainer';
+import { CartToastHandler } from '@/components/CartToastHandler';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ToastContainer />
+        <CartToastHandler />
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );

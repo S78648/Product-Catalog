@@ -1,5 +1,6 @@
 package com.productcatalog.product;
 
+import com.productcatalog.product.dto.CreateProductRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,13 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+
+    @Transactional
+    public ProductResponse createProduct(CreateProductRequest request) {
+        Product product = productMapper.toEntity(request);
+        Product saved = productRepository.save(product);
+        return productMapper.toResponse(saved);
+    }
 
     @Transactional(readOnly = true)
     public List<ProductResponse> findAll() {

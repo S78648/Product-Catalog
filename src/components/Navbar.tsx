@@ -10,10 +10,10 @@ const navigationItems = [
 
 function getNavLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+    'relative px-1 py-1 text-sm font-medium transition-colors',
     isActive
-      ? 'bg-gray-950 text-white'
-      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950',
+      ? 'text-gray-950 after:absolute after:-bottom-0.5 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-gray-950'
+      : 'text-gray-500 hover:text-gray-950',
   ].join(' ');
 }
 
@@ -42,7 +42,7 @@ export function Navbar() {
           </span>
         </NavLink>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navigationItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={getNavLinkClass}>
               {item.label}

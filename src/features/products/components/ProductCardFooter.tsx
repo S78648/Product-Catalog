@@ -7,15 +7,19 @@ interface ProductCardFooterProps {
 }
 
 export function ProductCardFooter({ product }: ProductCardFooterProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const { addItem, updateQuantity, removeItem } = useCart();
+  const cartItems = useCart((state) => state.items);
+  const addItem = useCart((state) => state.addItem);
+  const updateQuantity = useCart((state) => state.updateQuantity);
+  const removeItem = useCart((state) => state.removeItem);
+  const existingItem = cartItems.find((i) => i.productId === product.id);
+  const [isExpanded, setIsExpanded] = useState(!!existingItem);
+  const [quantity, setQuantity] = useState(existingItem?.quantity ?? 1);
 
   const handleIncrement = () => {
     if (quantity < product.stock) {
       const newQuantity = quantity + 1;
       setQuantity(newQuantity);
-      addItem(product.id, 1);
+      updateQuantity(product.id, newQuantity);
     }
   };
 
@@ -40,30 +44,53 @@ export function ProductCardFooter({ product }: ProductCardFooterProps) {
           setQuantity(1);
           addItem(product.id, 1);
         }}
-        className="mt-auto flex w-full items-center justify-center rounded-md bg-gray-950 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
+        className="btn-primary w-full text-xs"
         aria-label="Add to cart"
       >
-        <span className="text-lg leading-none">+</span>
+        <svg
+          className="size-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
       </button>
     );
   }
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded-md border border-gray-300 bg-gray-50 p-2">
+    <div className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-gray-50/50 p-1.5">
       <button
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           handleDecrement();
         }}
-        className="flex h-8 w-8 items-center justify-center rounded-md bg-black text-white transition-colors hover:bg-gray-800 disabled:opacity-50"
-        disabled={quantity <= 1}
+        className="flex size-7 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-white hover:text-gray-900"
         aria-label="Decrease quantity"
       >
-        −
+        <svg
+          className="size-3.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M20 12H4"
+          />
+        </svg>
       </button>
 
-      <span className="min-w-8 text-center font-semibold text-gray-950">
+      <span className="min-w-7 text-center text-sm font-semibold text-gray-900 tabular-nums">
         {quantity}
       </span>
 
@@ -73,11 +100,23 @@ export function ProductCardFooter({ product }: ProductCardFooterProps) {
           e.stopPropagation();
           handleIncrement();
         }}
-        className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-950 text-white transition-colors hover:bg-gray-800 disabled:opacity-50"
+        className="flex size-7 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-white hover:text-gray-900 disabled:opacity-30"
         disabled={quantity >= product.stock}
         aria-label="Increase quantity"
       >
-        +
+        <svg
+          className="size-3.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
       </button>
     </div>
   );
