@@ -1,0 +1,11 @@
+.gradle
+build
+.idea
+.vscode
+.env
+*.md
+.git
+.gitignore
+**/*.iml
+**/test-results
+**/reports
